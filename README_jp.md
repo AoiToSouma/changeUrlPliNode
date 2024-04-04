@@ -12,7 +12,7 @@ chmod +x *.sh
 
 # Editing .env
 sample.envをコピーし、.envファイルを作成します。<br>
-.envファイルに対して切り替え可能な httpUrl ($RPC_LIST) と wsUrl ($WS_LIST) を編集します。<br>
+.envファイルに対して切り替え可能な httpUrl ($RPC_LIST) と wsUrl ($WS_LIST)または組み合わせ ($PAIR_LIST) を編集します。<br>
 必要に応じてそのほかのパラメータも編集します。
 ```
 cp sample.env .env
@@ -21,17 +21,25 @@ nano .env
 
 # Execute
 実行のパターンは下記の3種類です。<br>
-1. RPC(httpUrl)のみ変更する
+1. RPC(httpUrl)のみ変更する<br>
+.env の $RPC_LIST を参照します。
 ```
 ./netset.sh -t rpc
 ```
-2. WS(wsUrl)のみ変更する
+2. WS(wsUrl)のみ変更する<br>
+.env の $WS_LIST を参照します。
 ```
 ./netset.sh -t ws
 ```
-3. RPC(httpUrl)とWS(wsUrl)を変更する
+3. RPC(httpUrl)とWS(wsUrl)を変更する<br>
+.env の $RPC_LISTと$WS_LIST を参照します。
 ```
 ./netset.sh -t both
+```
+4. RPC(httpUrl)とWS(wsUrl)の組み合わせを変更する<br>
+.env の $PAIR_LIST を参照します。
+```
+./netset.sh -t pair
 ```
 <br>
 config.tomlの変更後、"pm2 restart"が実行されます。<br>

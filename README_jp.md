@@ -20,7 +20,7 @@ nano .env
 ```
 
 # Execute
-実行のパターンは下記の3種類です。<br>
+実行のパターンは下記の4種類です。<br>
 1. RPC(httpUrl)のみ変更する<br>
 .env の $RPC_LIST を参照します。
 ```

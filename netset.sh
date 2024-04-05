@@ -48,7 +48,7 @@ get_paired_target(){
     for var in ${PAIR_LIST[@]}
     do
         url=(${var//,/ })
-        if grep -q "${url[0]}" $CONFIG && grep -q "${url[1]}" $CONFIG; then 
+        if grep -q "${url[0]}" $CONFIG && grep -q "${url[1]}" $CONFIG; then
             hit_no=$seq_no
             current_val=(${url[@]})
             break
@@ -183,7 +183,19 @@ pm2 restart NodeStartPM2
 from_line=$(cat $PM2LOG | wc -l)
 echo
 echo "Collecting error logs...sleep ${WAIT}s"
-sleep $WAIT
+count=$WAIT
+while true
+do
+    printf "$count"
+    if [ $count -eq 0 ]; then
+        echo
+        break
+    else
+        printf "..."
+    fi
+    ((count--))
+    sleep 1
+done
 to_line=$(cat $PM2LOG | wc -l)
 
 echo

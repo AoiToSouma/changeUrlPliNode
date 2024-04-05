@@ -12,7 +12,7 @@ chmod +x *.sh
 
 # Editing .env
 Copy sample.env and create a .env file.<br>
-Edit switchable httpUrl ($RPC_LIST) and wsUrl ($WS_LIST).<br>
+Edit switchable httpUrl ($RPC_LIST) and wsUrl ($WS_LIST) or combination($PAIR_LIST).<br>
 Edit other parameters as necessary.
 ```
 cp sample.env .env
@@ -20,7 +20,7 @@ nano .env
 ```
 
 # Execute
-Execution is performed using three types of parameters.<br>
+Execution is performed using four types of parameters.<br>
 1. Change only RPC(httpUrl)<br>
 Reference $RPC_LIST in .env.
 ```
@@ -36,7 +36,7 @@ Reference $RPC_LIST and $WS_LIST in .env.
 ```
 ./netset.sh -t both
 ```
-4. Change the combination of RPC(httpUrl) and WS(wsUrl) or combination($PAIR_LIST).<br>
+4. Change the combination of RPC(httpUrl) and WS(wsUrl).<br>
 Reference $PAIR_LIST in .env.
 ```
 ./netset.sh -t pair

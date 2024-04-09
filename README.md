@@ -13,6 +13,10 @@ chmod +x *.sh
 # Editing .env
 Copy sample.env and create a .env file.<br>
 Edit switchable httpUrl ($RPC_LIST) and wsUrl ($WS_LIST) or combination($PAIR_LIST).<br>
+Note that comment lines(#...) are ignored.<br>
+The httpUrl and wsUrl specified in the current config.toml must exist in the list. <br>
+An error will occur if it does not exist.<br>
+<br>
 Edit other parameters as necessary.
 ```
 cp sample.env .env

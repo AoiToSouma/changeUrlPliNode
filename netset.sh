@@ -6,26 +6,30 @@ get_target(){
     case "$1" in
         rpc)
             list=(${RPC_LIST[@]})
+            prefix="^\s*httpUrl.*"
             ;;
         ws)
             list=(${WS_LIST[@]})
+            prefix="^\s*wsUrl.*"
             ;;
         *)
             return 1
     esac
     seq_no=0
-    hit_no=-1
+    hit_no=-1 #Array number of hit list
+    line_no=0 #Line number of config.toml that was hit
     max_no=$((${#list[@]}-1))
     for var in ${list[@]}
     do
-        if grep -q "$var" $CONFIG; then
+        line_no=$(cat $CONFIG | grep -n "${prefix}${var}" | cut -f 1 -d ":")
+        if [ "${line_no}" != "" ]; then
             hit_no=$seq_no
             current_val=$var
             break
         fi
         ((seq_no++))
     done
-    if [ $hit_no -eq -1 ]; then
+   if [ $hit_no -eq -1 ]; then
         #not found
         return 1
     fi
@@ -35,22 +39,28 @@ get_target(){
         next_no=$((hit_no+1))
     fi
     next_val=${list[$next_no]}
-    ret_val=($current_val $next_val)
-    #return array (0:current_val, 1:next_val)
+    ret_val=($line_no $current_val $next_val)
+    #return array (0:config line no, 1:current_val, 2:next_val)
     echo ${ret_val[@]}
     return 0
 }
 
 get_paired_target(){
     seq_no=0
-    hit_no=-1
+    hit_no=-1     #Array number of hit list
+    rpc_line_no=0 #Line number of config.toml that was hit(RPC)
+    ws_line_no=0  #Line number of config.toml that was hit(WS)
     max_no=$((${#PAIR_LIST[@]}-1))
+    rpc_prefix="^\s*httpUrl.*"
+    ws_prefix="^\s*wsUrl.*"
     for var in ${PAIR_LIST[@]}
     do
         url=(${var//,/ })
-        if grep -q "${url[0]}" $CONFIG && grep -q "${url[1]}" $CONFIG; then
+        if grep -q "${rpc_prefix}${url[0]}" $CONFIG && grep -q "${ws_prefix}${url[1]}" $CONFIG; then
             hit_no=$seq_no
             current_val=(${url[@]})
+            rpc_line_no=$(cat $CONFIG | grep -n "${rpc_prefix}${url[0]}" | cut -f 1 -d ":")
+            ws_line_no=$(cat $CONFIG | grep -n "${ws_prefix}${url[1]}" | cut -f 1 -d ":")
             break
         fi
         ((seq_no++))
@@ -66,8 +76,8 @@ get_paired_target(){
     fi
     next_val=${PAIR_LIST[$next_no]}
     next_val=(${next_val//,/ })
-    ret_val=("${current_val[@]} ${next_val[@]}")
-    #return array (0:current_rpc, 1:current_ws, 2:next_rpc, 3:next_ws)
+    ret_val=("${rpc_line_no} ${ws_line_no} ${current_val[@]} ${next_val[@]}")
+    #return array (0:rpc config line no 1:ws config line no 2:current_rpc, 3:current_ws, 4:next_rpc, 5:next_ws)
     echo ${ret_val[@]}
     return 0
 }
@@ -149,10 +159,12 @@ if "${flg_pair}"; then
         echo "check PAIR_LIST in .env."
         exit 1
     fi
-    rpc[0]=${pair[0]}
-    rpc[1]=${pair[2]}
-    ws[0]=${pair[1]}
-    ws[1]=${pair[3]}
+    rpc[0]=${pair[0]} #line number of config.toml that was hit(RPC)
+    rpc[1]=${pair[2]} #Current RPC URL
+    rpc[2]=${pair[4]} #Next RPC URL
+    ws[0]=${pair[1]}  #line number of config.toml that was hit(WS)
+    ws[1]=${pair[3]}  #Current WS URL
+    ws[2]=${pair[5]}  #Next WS URL
     flg_rpc=true
     flg_ws=true
 fi
@@ -160,17 +172,17 @@ fi
 #change config.toml
 echo "[Change details]"
 if "${flg_rpc}"; then
-    sed -i -e "s|${rpc[0]}|${rpc[1]}|g" $CONFIG
-    echo "${rpc[0]}     --->    ${rpc[1]}"
+    sed -i -e "${rpc[0]} s|${rpc[1]}|${rpc[2]}|g" $CONFIG
+    echo "${rpc[1]}     --->    ${rpc[2]}"
 fi
 if "${flg_ws}"; then
-    sed -i -e "s|${ws[0]}|${ws[1]}|g" $CONFIG
-    echo "${ws[0]}     --->    ${ws[1]}"
+    sed -i -e "${ws[0]} s|${ws[1]}|${ws[2]}|g" $CONFIG
+    echo "${ws[1]}     --->    ${ws[2]}"
 fi
 
 echo
 echo "[config.toml]"
-cat $CONFIG | grep -e 'httpUrl' && cat $CONFIG | grep -e 'wsUrl'
+cat $CONFIG | grep -e '^\s*httpUrl' && cat $CONFIG | grep -e '^\s*wsUrl'
 
 echo
 echo "[PM2 reset]"

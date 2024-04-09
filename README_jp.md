@@ -13,7 +13,10 @@ chmod +x *.sh
 # Editing .env
 sample.envをコピーし、.envファイルを作成します。<br>
 .envファイルに対して切り替え可能な httpUrl ($RPC_LIST) と wsUrl ($WS_LIST)または組み合わせ ($PAIR_LIST) を編集します。<br>
-必要に応じてそのほかのパラメータも編集します。
+コメント行(#...)は無視されます。<br>
+現在のconfig.tomlで指定されているhttpUrl, wsUrlがリストに存在している必要があります。存在しない場合はエラーとなります。<br>
+<br>
+必要に応じてそのほかのパラメータも編集します。<br>
 ```
 cp sample.env .env
 nano .env
